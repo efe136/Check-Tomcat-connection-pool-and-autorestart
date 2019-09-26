@@ -1,6 +1,5 @@
 #!/bin/bash
-#writen by Alikhan Damirov
-#contributed by Efkan Isazade and redesigned for tomcat connection pool and auto restart tomcat
+#writen by Efkan Isazade
 
 while getopts "h:p:s:w:c:" opt; do
         case $opt in
@@ -12,7 +11,8 @@ while getopts "h:p:s:w:c:" opt; do
         esac
 done
 ## take an count of connetins
-con_count_var=$(netstat -na | grep $port_var | grep $state | wc -l)
+command=$(netstat -na | grep $port_var | grep $state | wc -l)
+con_count_var=$( printf "%d\n" $command )
 
 echo Active Connections is: "$con_count_var "
 
@@ -32,7 +32,7 @@ CRITICAL=2
 
 #now set the plugin result
 
-if [ "$con_count_var" = "$crit_var" ];
+if [ "$con_count_var" -ge "$crit_var" ];
         then
           echo "Status is CRITICAL"
         pid=$(tomcat_pid)
@@ -72,7 +72,7 @@ if [ "$con_count_var" = "$crit_var" ];
 
         exit 0
 
-elif [ "$con_count_var" = "$warn_var" ];
+elif [ "$con_count_var" -ge "$warn_var" ];
         then
                 echo "Status is WARNING" && exit "$WARNING"
 else
